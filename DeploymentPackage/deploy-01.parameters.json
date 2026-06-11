@@ -22,7 +22,7 @@
     },
     {
       "ParameterKey": "BootstrapScriptUrl",
-      "ParameterValue": "https://experienceazure.blob.core.windows.net/templates/cloudlabs-common/aws-bootstrap.sh"
+      "ParameterValue": "https://lab02-shellscripttemplate.s3.us-east-2.amazonaws.com/aws-bootstrap.sh"
     }
   ]
 }
