@@ -1,0 +1,32 @@
+[
+  {
+    "Name": "Shell Scripting and Linux Automation Lab",
+    "Language": "English",
+    "Files": [
+      {
+        "RawFilePath": "https://raw.githubusercontent.com/ombirs-spektra/Microland-Lab-02/refs/heads/main/Lab%20Guide/Getting-started.md",
+        "Order": 1
+      },
+      {
+        "RawFilePath": "https://raw.githubusercontent.com/ombirs-spektra/Microland-Lab-02/refs/heads/main/Lab%20Guide/S1.md",
+        "Order": 2
+      },
+      {
+        "RawFilePath": "https://raw.githubusercontent.com/ombirs-spektra/Microland-Lab-02/refs/heads/main/Lab%20Guide/S2.md",
+        "Order": 3
+      },
+      {
+        "RawFilePath": "https://raw.githubusercontent.com/ombirs-spektra/Microland-Lab-02/refs/heads/main/Lab%20Guide/S3.md",
+        "Order": 4
+      },
+      {
+        "RawFilePath": "https://raw.githubusercontent.com/ombirs-spektra/Microland-Lab-02/refs/heads/main/Lab%20Guide/S4.md",
+        "Order": 5
+      },
+      {
+        "RawFilePath": "https://raw.githubusercontent.com/ombirs-spektra/Microland-Lab-02/refs/heads/main/Lab%20Guide/S5.md",
+        "Order": 6
+      }
+    ]
+  }
+]
