@@ -1,0 +1,65 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "DenyRegionsOutsideSandbox",
+      "Effect": "Deny",
+      "Action": "*",
+      "Resource": "*",
+      "Condition": {
+        "StringNotEquals": {
+          "aws:RequestedRegion": [
+            "us-east-1",
+            "us-east-2"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "DenyExpensiveSku",
+      "Effect": "Deny",
+      "Action": "ec2:RunInstances",
+      "Resource": "arn:aws:ec2:*:*:instance/*",
+      "Condition": {
+        "StringNotEquals": {
+          "ec2:InstanceType": [
+            "t3.micro",
+            "t3.small",
+            "t3.medium"
+          ]
+        }
+      }
+    },
+    {
+      "Sid": "DenyIamModifications",
+      "Effect": "Deny",
+      "Action": [
+        "iam:Create*",
+        "iam:Delete*",
+        "iam:Put*",
+        "iam:Update*",
+        "iam:Attach*",
+        "iam:Detach*",
+        "iam:PassRole",
+        "iam:Tag*",
+        "iam:Untag*",
+        "iam:CreatePolicyVersion",
+        "iam:SetDefaultPolicyVersion",
+        "iam:DeletePolicyVersion"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "DenyNonEc2ServiceMutations",
+      "Effect": "Deny",
+      "NotAction": [
+        "ec2:*",
+        "sts:GetCallerIdentity",
+        "iam:Get*",
+        "iam:List*",
+        "iam:SimulatePrincipalPolicy"
+      ],
+      "Resource": "*"
+    }
+  ]
+}

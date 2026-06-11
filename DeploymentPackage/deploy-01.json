@@ -1,0 +1,349 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "CloudLabs AWS lab - learner workstation and prerequisites for Terraform EC2 challenge",
+  "Parameters": {
+    "DeploymentID": {
+      "Type": "String",
+      "Description": "CloudLabs deployment id; mirrored into resource names."
+    },
+    "ODLID": {
+      "Type": "String",
+      "Description": "CloudLabs ODL id."
+    },
+    "CandidateUserName": {
+      "Type": "String",
+      "Default": "candidate",
+      "Description": "Candidate sign-in identity label."
+    },
+    "AdminUsername": {
+      "Type": "String",
+      "Default": "ec2-user",
+      "Description": "Administrator username for the learner workstation."
+    },
+    "AdminPassword": {
+      "Type": "String",
+      "NoEcho": true,
+      "Description": "Administrator password surfaced to CloudLabs VM configuration."
+    },
+    "TrainerUserName": {
+      "Type": "String",
+      "Default": "instructor",
+      "Description": "Instructor sign-in identity label."
+    },
+    "TrainerUserPassword": {
+      "Type": "String",
+      "NoEcho": true,
+      "Description": "Instructor password placeholder retained for CloudLabs compatibility."
+    },
+    "InstanceType": {
+      "Type": "String",
+      "Default": "t3.medium",
+      "AllowedValues": [
+        "t3.medium",
+        "t3.large"
+      ],
+      "Description": "Instance type for the learner workstation VM."
+    },
+    "LatestAmi": {
+      "Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
+      "Default": "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2",
+      "Description": "Latest Amazon Linux 2 AMI used for the learner workstation."
+    },
+    "BootstrapScriptUrl": {
+      "Type": "String",
+      "Description": "HTTPS URL for the bootstrap script that installs Terraform, AWS CLI, and lab prerequisites."
+    }
+  },
+  "Resources": {
+    "LabVpc": {
+      "Type": "AWS::EC2::VPC",
+      "Properties": {
+        "CidrBlock": "10.42.0.0/16",
+        "EnableDnsSupport": true,
+        "EnableDnsHostnames": true,
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "lab-vpc-${DeploymentID}"
+            }
+          }
+        ]
+      }
+    },
+    "InternetGateway": {
+      "Type": "AWS::EC2::InternetGateway",
+      "Properties": {
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "lab-igw-${DeploymentID}"
+            }
+          }
+        ]
+      }
+    },
+    "VpcGatewayAttachment": {
+      "Type": "AWS::EC2::VPCGatewayAttachment",
+      "Properties": {
+        "VpcId": {
+          "Ref": "LabVpc"
+        },
+        "InternetGatewayId": {
+          "Ref": "InternetGateway"
+        }
+      }
+    },
+    "LabSubnet": {
+      "Type": "AWS::EC2::Subnet",
+      "Properties": {
+        "VpcId": {
+          "Ref": "LabVpc"
+        },
+        "CidrBlock": "10.42.1.0/24",
+        "MapPublicIpOnLaunch": true,
+        "AvailabilityZone": {
+          "Fn::Select": [
+            0,
+            {
+              "Fn::GetAZs": ""
+            }
+          ]
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "lab-subnet-${DeploymentID}"
+            }
+          }
+        ]
+      }
+    },
+    "PublicRouteTable": {
+      "Type": "AWS::EC2::RouteTable",
+      "Properties": {
+        "VpcId": {
+          "Ref": "LabVpc"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "lab-rt-${DeploymentID}"
+            }
+          }
+        ]
+      }
+    },
+    "DefaultRoute": {
+      "Type": "AWS::EC2::Route",
+      "DependsOn": "VpcGatewayAttachment",
+      "Properties": {
+        "RouteTableId": {
+          "Ref": "PublicRouteTable"
+        },
+        "DestinationCidrBlock": "0.0.0.0/0",
+        "GatewayId": {
+          "Ref": "InternetGateway"
+        }
+      }
+    },
+    "SubnetRouteAssociation": {
+      "Type": "AWS::EC2::SubnetRouteTableAssociation",
+      "Properties": {
+        "SubnetId": {
+          "Ref": "LabSubnet"
+        },
+        "RouteTableId": {
+          "Ref": "PublicRouteTable"
+        }
+      }
+    },
+    "LabSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Security group for learner workstation access",
+        "VpcId": {
+          "Ref": "LabVpc"
+        },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 22,
+            "ToPort": 22,
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 80,
+            "ToPort": 80,
+            "CidrIp": "0.0.0.0/0"
+          }
+        ],
+        "SecurityGroupEgress": [
+          {
+            "IpProtocol": "-1",
+            "CidrIp": "0.0.0.0/0"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "lab-sg-${DeploymentID}"
+            }
+          }
+        ]
+      }
+    },
+    "LabVmRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "RoleName": {
+          "Fn::Sub": "labvm-role-${DeploymentID}"
+        },
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "Service": [
+                  "ec2.amazonaws.com"
+                ]
+              },
+              "Action": [
+                "sts:AssumeRole"
+              ]
+            }
+          ]
+        },
+        "ManagedPolicyArns": [
+          "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+        ],
+        "Policies": [
+          {
+            "PolicyName": "LabVmBootstrapAndReadOnlyEc2",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "ec2:Describe*",
+                    "ssm:GetParameter",
+                    "ssm:GetParameters"
+                  ],
+                  "Resource": "*"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "LabVmInstanceProfile": {
+      "Type": "AWS::IAM::InstanceProfile",
+      "Properties": {
+        "Roles": [
+          {
+            "Ref": "LabVmRole"
+          }
+        ],
+        "InstanceProfileName": {
+          "Fn::Sub": "labvm-profile-${DeploymentID}"
+        }
+      }
+    },
+    "LabVm": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "InstanceType": {
+          "Ref": "InstanceType"
+        },
+        "ImageId": {
+          "Ref": "LatestAmi"
+        },
+        "IamInstanceProfile": {
+          "Ref": "LabVmInstanceProfile"
+        },
+        "SubnetId": {
+          "Ref": "LabSubnet"
+        },
+        "SecurityGroupIds": [
+          {
+            "Ref": "LabSecurityGroup"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": {
+              "Fn::Sub": "labvm-${DeploymentID}"
+            }
+          },
+          {
+            "Key": "DeploymentID",
+            "Value": {
+              "Ref": "DeploymentID"
+            }
+          },
+          {
+            "Key": "Purpose",
+            "Value": "TerraformWorkstation"
+          }
+        ],
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Sub": "#!/bin/bash -xe\nyum update -y\nyum install -y unzip jq git\nif ! command -v aws >/dev/null 2>&1; then\n  yum install -y awscli\nfi\nif ! command -v terraform >/dev/null 2>&1; then\n  curl -fsSL https://releases.hashicorp.com/terraform/1.9.8/terraform_1.9.8_linux_amd64.zip -o /tmp/terraform.zip\n  unzip -o /tmp/terraform.zip -d /usr/local/bin\n  chmod +x /usr/local/bin/terraform\nfi\nmkdir -p /home/${AdminUsername}/lab-files/terraform-ec2\nchown -R ${AdminUsername}:${AdminUsername} /home/${AdminUsername}/lab-files\ncat > /home/${AdminUsername}/lab-files/terraform-ec2/README.txt <<'EOF'\nUse this workstation to create your Terraform configuration from scratch.\nAWS CLI is preconfigured for the lab environment. Do not enter or hardcode credentials manually.\nCreate the learner EC2 instance with Terraform during the exercises; it is intentionally not pre-provisioned by CloudFormation.\nEOF\nchown ${AdminUsername}:${AdminUsername} /home/${AdminUsername}/lab-files/terraform-ec2/README.txt\ncurl -fsSL ${BootstrapScriptUrl} -o /tmp/cloudlabs-bootstrap.sh\nchmod +x /tmp/cloudlabs-bootstrap.sh\nDEPLOYMENT_ID='${DeploymentID}' ODL_ID='${ODLID}' ADMIN_USERNAME='${AdminUsername}' /tmp/cloudlabs-bootstrap.sh || true\n"}
+        }
+      }
+    }
+  },
+  "Outputs": {
+    "LabVmPublicIp": {
+      "Description": "Public IP address of the learner workstation",
+      "Value": {
+        "Fn::GetAtt": [
+          "LabVm",
+          "PublicIp"
+        ]
+      }
+    },
+    "VpcId": {
+      "Description": "VPC id for the lab environment",
+      "Value": {
+        "Ref": "LabVpc"
+      }
+    },
+    "AccountId": {
+      "Description": "AWS account id hosting the lab resources",
+      "Value": {
+        "Ref": "AWS::AccountId"
+      }
+    },
+    "vmServerDnsName": {
+      "Description": "CloudLabs VM configuration server endpoint",
+      "Value": {
+        "Fn::GetAtt": [
+          "LabVm",
+          "PublicDnsName"
+        ]
+      }
+    },
+    "vmServerUsername": {
+      "Description": "CloudLabs VM configuration username",
+      "Value": {
+        "Ref": "AdminUsername"
+      }
+    },
+    "vmServerPassword": {
+      "Description": "CloudLabs VM configuration password",
+      "Value": {
+        "Ref": "AdminPassword"
+      }
+    }
+  }
+}

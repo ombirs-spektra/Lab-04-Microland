@@ -1,0 +1,28 @@
+{
+  "Parameters": [
+    {
+      "ParameterKey": "DeploymentID",
+      "ParameterValue": "GET-DEPLOYMENT-ID"
+    },
+    {
+      "ParameterKey": "ODLID",
+      "ParameterValue": "GET-ODL-ID"
+    },
+    {
+      "ParameterKey": "CandidateUserName",
+      "ParameterValue": "GET-AZUSER-UPN"
+    },
+    {
+      "ParameterKey": "AdminPassword",
+      "ParameterValue": "GEN-PASSWORD"
+    },
+    {
+      "ParameterKey": "TrainerUserPassword",
+      "ParameterValue": "GEN-PASSWORD"
+    },
+    {
+      "ParameterKey": "BootstrapScriptUrl",
+      "ParameterValue": "https://experienceazure.blob.core.windows.net/templates/cloudlabs-common/aws-bootstrap.sh"
+    }
+  ]
+}
