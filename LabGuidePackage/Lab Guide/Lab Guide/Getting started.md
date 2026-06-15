@@ -1,4 +1,4 @@
-# **Terraform on AWS Cloud Challenge Lab**
+# **AWS Cloud Challenge Lab**
 
 **Duration: 90 Minutes**
 
