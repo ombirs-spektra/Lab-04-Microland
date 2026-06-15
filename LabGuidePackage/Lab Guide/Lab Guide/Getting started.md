@@ -24,6 +24,8 @@ Your virtual machine provides the tools required to complete the assessment acti
 
 The lab guide provides step-by-step instructions and validation requirements for each task.
 
+![alt text](./images/1.png)
+
 ---
 
 # **Exploring Your Lab Resources**
@@ -38,6 +40,8 @@ You can find:
 * Deployment Information
 * Resource Details
 
+![alt text](./images/2.png)
+
 ---
 
 # **Utilizing the Split Window Feature**
@@ -46,23 +50,7 @@ For convenience, you can open the lab guide in a separate window by selecting th
 
 This allows you to follow instructions while working in the virtual machine or AWS Console simultaneously.
 
----
-
-### **AWS Region**
-
-```text
-us-east-1
-```
-
----
-
-### **Terraform Working Directory**
-
-```text
-C:\TerraformLab
-```
-
-> ⚠️ All Terraform files created during this assessment must be stored within the **C:\TerraformLab** directory unless otherwise specified in the task instructions.
+![alt text](./images/3.png)
 
 ---
 
@@ -86,11 +74,15 @@ You may use VS Code to create and edit Terraform configuration files during the 
 
 You may Start, Restart, or Stop your virtual machine at any time using the **Resources** tab available within the lab environment.
 
+![alt text](./images/4.png)
+
 ---
 
 # **Lab Guide Zoom In / Zoom Out**
 
 To adjust the zoom level of the lab environment page, use the zoom controls located next to the session timer.
+
+![alt text](./images/5.png)
 
 ---
 
@@ -103,84 +95,7 @@ After completing each task, select the **Validate** button located within the Va
 * Ensure resources are created using the naming conventions specified within each exercise.
 * Ensure Terraform files are saved in the required working directory before validation.
 
----
-
-# **Assessment Overview**
-
-During this assessment, you will complete the following exercises:
-
-## **Exercise 1: Configure Terraform and AWS Provider**
-
-You will:
-
-* Create a Terraform configuration file.
-* Configure the AWS provider.
-* Configure the required provider source.
-* Set the AWS region.
-* Validate the configuration.
-
----
-
-## **Exercise 2: Provision an Amazon EC2 Instance**
-
-You will:
-
-* Define an EC2 instance resource.
-* Configure the required AMI.
-* Configure the instance type.
-* Review the Terraform configuration.
-
----
-
-## **Exercise 3: Initialize and Validate Terraform Configuration**
-
-You will:
-
-* Initialize the Terraform working directory.
-* Download required provider plugins.
-* Generate the lock file.
-* Validate the Terraform configuration.
-
----
-
-## **Exercise 4: Deploy Infrastructure Using Terraform**
-
-You will:
-
-* Generate an execution plan.
-* Apply the Terraform configuration.
-* Provision AWS infrastructure.
-* Verify resource deployment.
-
----
-
-## **Exercise 5: Review Terraform State**
-
-You will:
-
-* Inspect Terraform state information.
-* Identify managed resources.
-* Verify resource tracking.
-
----
-
-## **Exercise 6: Generate and Review a Destroy Plan**
-
-You will:
-
-* Create a destroy execution plan.
-* Review planned resource removals.
-* Verify resources scheduled for destruction.
-
----
-
-## **Exercise 7: Destroy Infrastructure**
-
-You will:
-
-* Remove deployed infrastructure.
-* Verify resource deletion.
-* Confirm Terraform state cleanup.
+![alt text](./images/6.png)
 
 ---
 
@@ -197,3 +112,5 @@ The CloudLabs support team is available 24/7 throughout your lab experience.
 ---
 
 Click **Next >>** to begin the assessment.
+
+![alt text](./images/7.png)
